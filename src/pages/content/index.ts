@@ -93,6 +93,34 @@ class TranslationManager {
     document.addEventListener('visibilitychange', () => {
       this.handleVisibilityChange()
     })
+
+    document.addEventListener('fullscreenchange', () => {
+      this.handleFullscreenChange()
+    })
+
+    document.addEventListener('webkitfullscreenchange', () => {
+      this.handleFullscreenChange()
+    })
+  }
+
+  private getSubtitleMountTarget(): HTMLElement {
+    const fullscreenElement =
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement
+
+    return (fullscreenElement as HTMLElement) || document.body
+  }
+
+  private handleFullscreenChange() {
+    const target = this.getSubtitleMountTarget()
+
+    if (
+      this.floatingSubtitle &&
+      this.floatingSubtitle.parentElement !== target
+    ) {
+      target.appendChild(this.floatingSubtitle)
+      console.log('🖥️ Fullscreen changed, subtitle moved to:', target)
+    }
   }
 
   private async initialize() {
@@ -439,7 +467,7 @@ class TranslationManager {
         this.floatingSubtitle = existingContainer
       } else {
         this.floatingSubtitle = this.createFloatingSubtitleContainer(items)
-        document.body.appendChild(this.floatingSubtitle)
+        this.getSubtitleMountTarget().appendChild(this.floatingSubtitle)
       }
     }
 
